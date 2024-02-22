@@ -32,6 +32,13 @@
 
 // Reader ioctl request codes.
 #define MP_READER_CLOSE (1)
+#define MP_READER_MEMMAP (2)
+
+// Used as arg for MP_READER_MEMMAP ioctl request.
+typedef struct _mp_reader_ioctl_memmap_t {
+    size_t len;
+    const uint8_t *ptr;
+} mp_reader_ioctl_memmap_t;
 
 typedef struct _mp_reader_t {
     // Pointer to the context of this reader, passed as the first argument to the methods below.
