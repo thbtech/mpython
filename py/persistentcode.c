@@ -393,9 +393,14 @@ static mp_raw_code_t *load_raw_code(mp_reader_t *reader, mp_module_context_t *co
     return rc;
 }
 
+static void reader_close(void *reader_in) {
+    mp_reader_t *reader = reader_in;
+    reader->ioctl(reader->data, MP_READER_CLOSE, 0);
+}
+
 void mp_raw_code_load(mp_reader_t *reader, mp_compiled_module_t *cm) {
     // Set exception handler to close the reader if an exception is raised.
-    MP_DEFINE_NLR_JUMP_CALLBACK_FUNCTION_1(ctx, reader->close, reader->data);
+    MP_DEFINE_NLR_JUMP_CALLBACK_FUNCTION_1(ctx, reader_close, reader);
     nlr_push_jump_callback(&ctx.callback, mp_call_function_1_from_nlr_jump_callback);
 
     byte header[4];

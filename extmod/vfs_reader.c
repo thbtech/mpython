@@ -49,7 +49,7 @@ typedef struct _mp_reader_vfs_t {
     byte buf[];
 } mp_reader_vfs_t;
 
-static mp_uint_t mp_reader_vfs_readbyte(void *data) {
+static uintptr_t mp_reader_vfs_readbyte(void *data) {
     mp_reader_vfs_t *reader = (mp_reader_vfs_t *)data;
     if (reader->bufpos >= reader->buflen) {
         if (reader->buflen < reader->bufsize) {
@@ -70,10 +70,16 @@ static mp_uint_t mp_reader_vfs_readbyte(void *data) {
     return reader->buf[reader->bufpos++];
 }
 
-static void mp_reader_vfs_close(void *data) {
+static intptr_t mp_reader_vfs_ioctl(void *data, uintptr_t request, uintptr_t arg) {
     mp_reader_vfs_t *reader = (mp_reader_vfs_t *)data;
-    mp_stream_close(reader->file);
-    m_del_obj(mp_reader_vfs_t, reader);
+
+    if (request == MP_READER_CLOSE) {
+        mp_stream_close(reader->file);
+        m_del_obj(mp_reader_vfs_t, reader);
+        return 0;
+    }
+
+    return -MP_EINVAL;
 }
 
 void mp_reader_new_file(mp_reader_t *reader, qstr filename) {
@@ -104,7 +110,7 @@ void mp_reader_new_file(mp_reader_t *reader, qstr filename) {
     rf->bufpos = 0;
     reader->data = rf;
     reader->readbyte = mp_reader_vfs_readbyte;
-    reader->close = mp_reader_vfs_close;
+    reader->ioctl = mp_reader_vfs_ioctl;
 }
 
 #endif // MICROPY_READER_VFS
