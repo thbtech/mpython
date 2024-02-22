@@ -52,10 +52,15 @@ static intptr_t mp_reader_mem_ioctl(void *data, uintptr_t request, uintptr_t arg
     mp_reader_mem_t *reader = (mp_reader_mem_t *)data;
 
     if (request == MP_READER_CLOSE) {
-        if (reader->free_len > 0) {
+        if (reader->free_len > 0 && reader->free_len != (size_t)-1) {
             m_del(char, (char *)reader->beg, reader->free_len);
         }
         m_del_obj(mp_reader_mem_t, reader);
+        return 0;
+    } else if (request == MP_READER_MEMMAP && reader->free_len == (size_t)-1) {
+        mp_reader_ioctl_memmap_t *memmap = (mp_reader_ioctl_memmap_t *)arg;
+        memmap->ptr = reader->cur;
+        reader->cur += memmap->len;
         return 0;
     }
 
