@@ -171,7 +171,25 @@ endif
 
 ifeq ($(MICROPY_PY_BLUETOOTH),1)
 ifeq ($(MICROPY_BLUETOOTH_BTSTACK),1)
+
+ifndef MICROPY_BLUETOOTH_BTSTACK_HCI_DUMP
+MICROPY_BLUETOOTH_BTSTACK_HCI_DUMP ?= 0
+endif
+
+ifeq ($(MICROPY_BLUETOOTH_BTSTACK_USB),0)
 SRC_BTSTACK_C += lib/btstack/platform/embedded/btstack_run_loop_embedded.c
+endif
+
+ifeq ($(MICROPY_BLUETOOTH_BTSTACK_USB),1)
+SRC_BTSTACK_C += lib/btstack/platform/posix/btstack_run_loop_posix.c
+
+ifeq ($(MICROPY_BLUETOOTH_BTSTACK_HCI_DUMP),1)
+CFLAGS += -DMICROPY_BLUETOOTH_BTSTACK_HCI_DUMP=1
+SRC_BTSTACK_C += lib/btstack/platform/posix/hci_dump_posix_fs.c
+endif
+
+endif
+
 endif
 endif
 
