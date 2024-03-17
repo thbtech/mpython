@@ -52,6 +52,12 @@ endif
 endif
 endif
 
+# Set the file that will be included by "extmod/btstack/btstack_config.h"
+# 
+# The original file "extmod/btstack/btstack_config_common.h"
+# will be included by it. 
+MICROPY_BLUETOOTH_BTSTACK_CONFIG_FILE ?= '"ports/unix/btstack_config.h"'
+
 # include py core make definitions
 include $(TOP)/py/py.mk
 include $(TOP)/extmod/extmod.mk
