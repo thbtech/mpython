@@ -525,17 +525,17 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
         # Check if @micropython.asm_thumb supports Thumb2 instructions, and skip such tests if it doesn't
         output = run_feature_check(pyb, args, "inlineasm_thumb2.py")
         if output != b"thumb2\n":
-            skip_tests.add("inlineasm/asmbcc.py")
-            skip_tests.add("inlineasm/asmbitops.py")
-            skip_tests.add("inlineasm/asmconst.py")
-            skip_tests.add("inlineasm/asmdiv.py")
-            skip_tests.add("inlineasm/asmfpaddsub.py")
-            skip_tests.add("inlineasm/asmfpcmp.py")
-            skip_tests.add("inlineasm/asmfpldrstr.py")
-            skip_tests.add("inlineasm/asmfpmuldiv.py")
-            skip_tests.add("inlineasm/asmfpsqrt.py")
-            skip_tests.add("inlineasm/asmit.py")
-            skip_tests.add("inlineasm/asmspecialregs.py")
+            skip_tests.add("inlineasm/thumb/asmbcc.py")
+            skip_tests.add("inlineasm/thumb/asmbitops.py")
+            skip_tests.add("inlineasm/thumb/asmconst.py")
+            skip_tests.add("inlineasm/thumb/asmdiv.py")
+            skip_tests.add("inlineasm/thumb/asmfpaddsub.py")
+            skip_tests.add("inlineasm/thumb/asmfpcmp.py")
+            skip_tests.add("inlineasm/thumb/asmfpldrstr.py")
+            skip_tests.add("inlineasm/thumb/asmfpmuldiv.py")
+            skip_tests.add("inlineasm/thumb/asmfpsqrt.py")
+            skip_tests.add("inlineasm/thumb/asmit.py")
+            skip_tests.add("inlineasm/thumb/asmspecialregs.py")
 
         # Check if emacs repl is supported, and skip such tests if it's not
         t = run_feature_check(pyb, args, "repl_emacs_check.py")
@@ -676,11 +676,16 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
                 "extmod/time_time_ns.py"
             )  # RA fsp rtc function doesn't support nano sec info
         elif args.target == "qemu":
-            skip_tests.add("inlineasm/asmfpaddsub.py")  # requires Cortex-M4
-            skip_tests.add("inlineasm/asmfpcmp.py")
-            skip_tests.add("inlineasm/asmfpldrstr.py")
-            skip_tests.add("inlineasm/asmfpmuldiv.py")
-            skip_tests.add("inlineasm/asmfpsqrt.py")
+            if args.arch == "rv32imc":
+                for t in tests:
+                    if t.startswith("inlineasm/thumb/"):
+                        skip_tests.add(t)
+            else:
+                skip_tests.add("inlineasm/thumb/asmfpaddsub.py")  # requires Cortex-M4
+                skip_tests.add("inlineasm/thumb/asmfpcmp.py")
+                skip_tests.add("inlineasm/thumb/asmfpldrstr.py")
+                skip_tests.add("inlineasm/thumb/asmfpmuldiv.py")
+                skip_tests.add("inlineasm/thumb/asmfpsqrt.py")
         elif args.target == "webassembly":
             skip_tests.add("basics/string_format_modulo.py")  # can't print nulls to stdout
             skip_tests.add("basics/string_strip.py")  # can't print nulls to stdout
@@ -1081,6 +1086,9 @@ the last matching regex is used:
         arch = str(output, "ascii").strip()
         if arch != "None":
             args.mpy_cross_flags = "-march=" + arch
+            args.arch = arch
+        else:
+            args.arch = None
 
     if args.run_failures and (any(args.files) or args.test_dirs is not None):
         raise ValueError(
@@ -1108,11 +1116,11 @@ the last matching regex is used:
             )
             if args.target == "pyboard":
                 # run pyboard tests
-                test_dirs += ("float", "stress", "inlineasm", "ports/stm32")
+                test_dirs += ("float", "stress", "inlineasm/thumb", "ports/stm32")
             elif args.target in ("renesas-ra"):
-                test_dirs += ("float", "inlineasm", "ports/renesas-ra")
+                test_dirs += ("float", "inlineasm/thumb", "ports/renesas-ra")
             elif args.target == "rp2":
-                test_dirs += ("float", "stress", "inlineasm", "thread", "ports/rp2")
+                test_dirs += ("float", "stress", "inlineasm/thumb", "thread", "ports/rp2")
             elif args.target == "esp32":
                 test_dirs += ("float", "stress", "thread")
             elif args.target in ("esp8266", "minimal", "nrf"):
@@ -1134,9 +1142,10 @@ the last matching regex is used:
             elif args.target == "qemu":
                 test_dirs += (
                     "float",
-                    "inlineasm",
                     "ports/qemu",
                 )
+                if args.arch != "rv32imc":
+                    test_dirs += ("inlineasm/thumb",)
             elif args.target == "webassembly":
                 test_dirs += ("float", "ports/webassembly")
         else:
