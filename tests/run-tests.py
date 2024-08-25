@@ -654,6 +654,8 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
             skip_tests.add("extmod/heapq1.py")  # heapq not supported by WiPy
             skip_tests.add("extmod/random_basic.py")  # requires random
             skip_tests.add("extmod/random_extra.py")  # requires random
+        elif args.target == "esp32":
+            skip_tests.add("inlineasm/rv32imc/asm_csr.py")  # writes to unsafe registers
         elif args.target == "esp8266":
             skip_tests.add("misc/rge_sm.py")  # too large
         elif args.target == "minimal":
@@ -681,6 +683,9 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
                     if t.startswith("inlineasm/thumb/"):
                         skip_tests.add(t)
             else:
+                for t in tests:
+                    if t.startswith("inlineasm/rv32imc/"):
+                        skip_tests.add(t)
                 skip_tests.add("inlineasm/thumb/asmfpaddsub.py")  # requires Cortex-M4
                 skip_tests.add("inlineasm/thumb/asmfpcmp.py")
                 skip_tests.add("inlineasm/thumb/asmfpldrstr.py")
@@ -1144,7 +1149,9 @@ the last matching regex is used:
                     "float",
                     "ports/qemu",
                 )
-                if args.arch != "rv32imc":
+                if args.arch == "rv32imc":
+                    test_dirs += ("inlineasm/rv32imc",)
+                else:
                     test_dirs += ("inlineasm/thumb",)
             elif args.target == "webassembly":
                 test_dirs += ("float", "ports/webassembly")
