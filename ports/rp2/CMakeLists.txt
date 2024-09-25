@@ -193,6 +193,7 @@ set(MICROPY_SOURCE_QSTR
     ${MICROPY_PORT_DIR}/rp2_pio.c
     ${MICROPY_PORT_DIR}/rp2_dma.c
     ${CMAKE_BINARY_DIR}/pins_${MICROPY_BOARD}.c
+    ${MICROPY_PORT_DIR}/rp2_network_cyw43.c
 )
 
 set(PICO_SDK_COMPONENTS
@@ -403,6 +404,7 @@ if (MICROPY_PY_NETWORK_CYW43)
 
     list(APPEND MICROPY_SOURCE_PORT
         machine_pin_cyw43.c
+        rp2_network_cyw43.c
     )
 
     target_link_libraries(${MICROPY_TARGET}
