@@ -1068,11 +1068,13 @@ the last matching regex is used:
         "wipy",
         "esp8266",
         "esp32",
+        "mimxrt",
         "minimal",
         "nrf",
         "qemu",
         "renesas-ra",
         "rp2",
+        "samd",
         "zephyr",
     )
     if args.target in LOCAL_TARGETS:
@@ -1124,6 +1126,8 @@ the last matching regex is used:
             if args.target == "pyboard":
                 # run pyboard tests
                 test_dirs += ("float", "stress", "inlineasm", "ports/stm32")
+            elif args.target == "mimxrt":
+                test_dirs += ("float", "stress", "inlineasm")
             elif args.target in ("renesas-ra"):
                 test_dirs += ("float", "inlineasm", "ports/renesas-ra")
             elif args.target == "rp2":
@@ -1132,7 +1136,7 @@ the last matching regex is used:
                     test_dirs += ("inlineasm",)
             elif args.target == "esp32":
                 test_dirs += ("float", "stress", "thread")
-            elif args.target in ("esp8266", "minimal", "nrf"):
+            elif args.target in ("esp8266", "minimal", "samd", "nrf"):
                 test_dirs += ("float",)
             elif args.target == "wipy":
                 # run WiPy tests
