@@ -27,6 +27,7 @@
 // This file is never compiled standalone, it's included directly from
 // extmod/machine_uart.c via MICROPY_PY_MACHINE_UART_INCLUDEFILE.
 
+#include "soc/uart_periph.h"
 #include "driver/uart.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
